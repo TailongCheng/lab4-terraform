@@ -9,12 +9,13 @@ terraform {
 
 provider "google" {
   project                = "${var.var_project}"
+  region                 = "us-central1"
 }
 
 module "vpc" {
   source                 = "../modules/vpc" 
   env                    = "${var.var_env}"
-  lastname                 = "${var.var_lastname}"
+  lastname               = "${var.var_lastname}"
   var_vpc_public_subnet  = "${var.vpc_public_subnet}"
   var_vpc_private_subnet = "${var.vpc_private_subnet}"
 }
