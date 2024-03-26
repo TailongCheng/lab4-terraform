@@ -96,13 +96,15 @@ resource "google_compute_firewall" "allow-internal" {
   ]
 }
 
-## Container Compute VM
+## Service Account
 ## -------------------------
-resource "google_service_account" "default" {
-  account_id   = "my-custom-sa"
-  display_name = "Custom SA for VM Instance"
+resource "google_service_account" "instance_service_account" {
+  account_id              = "764950655405-compute@developer.gserviceaccount.com"
+  display_name            = "Service Account for Compute Instance"
 }
 
+## Container Compute VM
+## -------------------------
 resource "google_compute_instance" "default" {
   name                    = "vm_container"
   machine_type            = "e2-micro"
@@ -110,30 +112,58 @@ resource "google_compute_instance" "default" {
 
   boot_disk {
     initialize_params {
-      image = "debian-12-bookworm-v20240312"
+      image               = "debian-12-bookworm-v20240312"
     }
   }
 
+  metadata {
+    startup-script = <<SCRIPT
+    sudo apt-get update -y
+    sudo apt-get install apt-transport-https ca-certificates curl gnupg lsb-release git -y
+    curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+    echo \
+      "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian \
+      $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    sudo apt-get update -y
+    sudo apt-get install docker-ce docker-ce-cli containerd.io -y
+    sudo systemctl start docker
+    sudo systemctl enable docker
+    sudo mkdir /assignment2
+    cd /assignment2
+    sudo docker pull us-central1-docker.pkg.dev/assignment2-418411/cheng-repo/flaskapp:latest
+    sudo docker run --name flaskapp -dp 8080:8080 us-central1-docker.pkg.dev/assignment2-418411/cheng-repo/flaskapp:latest
+    SCRIPT
+  } 
+
   network_interface {
-    network = "google_compute_network.vpc_network.name"
-    subnetwork = "google_compute_subnetwork.public_subnet.name}"
+    network               = google_compute_network.vpc_network.name
+    subnetwork            = google_compute_subnetwork.public_subnet.name
     access_config {
       // Ephemeral public IP
     }
   }
-  
-  metadata = {
-    foo = "bar"
-  }
-
-  metadata_startup_script = "echo hi > /test.txt"
 
   service_account {
     # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
-    email  = 764950655405-compute@developer.gserviceaccount.com
-    scopes = ["cloud-platform"]
+    email                 = google_service_account.instance_service_account.email
+    scopes = [
+      "https://www.googleapis.com/auth/cloud-platform",
+      "https://www.googleapis.com/auth/cloud-platform.read-only"
+  ]
   }
 }
+
+## Project IAM Binding
+## -------------------------
+resource "google_project_iam_binding" "instance_editor_binding" {
+  project                 = "assignment2-418411"
+  role                    = "roles/editor"
+
+  members = [
+    "serviceAccount:google_service_account.instance_service_account.email",
+  ]
+}
+
 
 ## Below for modulization attempt
 
