@@ -1,18 +1,21 @@
-resource "google_compute_instance" "default" {
-  name         = "${format("%s","${var.lastname}-${var.env}-${var.region_map["${var.var_region_name}"]}-instance1")}"
+resource "google_compute_instance" "vm_container" {
+  name         = "vm_container"
   machine_type  = "e2-micro"
-  #zone         =   "${element(var.var_zones, count.index)}"
-  zone          =   "${format("%s","${var.var_region_name}-b")}"
+  zone          =   "${format("%s","${var.region}-b")}"
   tags          = ["ssh","http"]
+
   boot_disk {
     initialize_params {
-      image     =  "Debian GNU/Linux 12 (bookworm)"     
+      image     =  "debian-cloud/debian-12"     
     }
   }
-labels {
+
+  labels {
       webserver =  "true"     
     }
-network_interface {
+  
+  network_interface {
+    network = 
     subnetwork = "${google_compute_subnetwork.public_subnet.name}"
     access_config {
       // Ephemeral IP
