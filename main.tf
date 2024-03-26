@@ -28,7 +28,7 @@ resource "google_compute_subnetwork" "public-subnet" {
   project                 = "assignment2-418411"
   name                    = "cheng-pub-subnet"
   ip_cidr_range           = "10.0.10.0/24"
-  network                 = google_compute_network.vpc_network.id
+  network                 = google_compute_network.vpc-network.id
   region                  = "us-central1"
 }
 
@@ -36,7 +36,7 @@ resource "google_compute_subnetwork" "private-subnet" {
   project                 = "assignment2-418411"
   name                    = "cheng-pri-subnet"
   ip_cidr_range           = "10.0.20.0/24"
-  network                 = google_compute_network.vpc_network.id
+  network                 = google_compute_network.vpc-network.id
   region                  = "us-central1"
 }
 
@@ -44,7 +44,7 @@ resource "google_compute_subnetwork" "private-subnet" {
 ## -------------------------
 resource "google_compute_firewall" "container-firewall" {
   name                    = "container-firewall"
-  network                 = google_compute_network.vpc_network.name
+  network                 = google_compute_network.vpc-network.name
 
   # Allow ICMP
   allow {
@@ -78,7 +78,7 @@ resource "google_compute_firewall" "container-firewall" {
 
 resource "google_compute_firewall" "allow-internal" {
   name                    = "allow-internal"
-  network                 = google_compute_network.vpc_network.name
+  network                 = google_compute_network.vpc-network.name
   allow {
     protocol = "icmp"
   }
@@ -94,13 +94,6 @@ resource "google_compute_firewall" "allow-internal" {
     "public-subnet",
     "private-subnet"
   ]
-}
-
-## Service Account
-## -------------------------
-resource "google_service_account" "instance_service_account" {
-  account_id              = "764950655405-compute@developer.gserviceaccount.com"
-  display_name            = "Service Account for Compute Instance"
 }
 
 ## Container Compute VM
@@ -145,7 +138,7 @@ resource "google_compute_instance" "default" {
 
   service_account {
     # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
-    email                 = google_service_account.instance_service_account.email
+    email                 = "764950655405-compute@developer.gserviceaccount.com"
     scopes = [
       "https://www.googleapis.com/auth/cloud-platform",
       "https://www.googleapis.com/auth/cloud-platform.read-only"
@@ -160,7 +153,7 @@ resource "google_project_iam_binding" "instance_editor_binding" {
   role                    = "roles/editor"
 
   members = [
-    "serviceAccount:google_service_account.instance_service_account.email",
+    "serviceAccount:764950655405-compute@developer.gserviceaccount.com",
   ]
 }
 
