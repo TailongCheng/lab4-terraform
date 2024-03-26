@@ -23,7 +23,6 @@ module "vpc" {
 module "compute" {
   source                 = "../modules/compute"
   network_self_link      = "${module.vpc.out_vpc_self_link}"
-  subnetwork1            = "${module.uc1.uc1_out_public_subnet_name}"
   env                    = "${var.var_env}"
   var_vpc_public_subnet  = "${var.vpc_public_subnet}"
   var_vpc_private_subnet = "${var.vpc_private_subnet}"
@@ -32,7 +31,6 @@ module "compute" {
 module "firewall" {
   source                 = "../modules/firewall"
   network_self_link      = "${module.vpc.out_vpc_self_link}"
-  subnetwork1            = "${module.ue1.ue1_out_public_subnet_name}"
   env                    = "${var.var_env}"
   var_vpc_public_subnet  = "${var.vpc_public_subnet}"
   var_vpc_private_subnet = "${var.vpc_private_subnet}"
