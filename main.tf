@@ -42,19 +42,21 @@ resource "google_compute_subnetwork" "private-subnet" {
 
 ## Firewall Rule
 ## -------------------------
-resource "google_compute_firewall" "container-firewall" {
-  name                    = "container-firewall"
+resource "google_compute_firewall" "container-allow-icmp" {
+  name                    = "container-allow-http"
   network                 = google_compute_network.vpc-network.name
-
-  # Allow ICMP
   allow {
     protocol              = "icmp"
     priority              = 65534
     description           = "Allow ICMP."
-    source_ranges      = ["0.0.0.0/0"]
+    source_ranges         = ["0.0.0.0/0"]
   }
+  target_tags = ["icmp"]
+}
 
-  # Allow TCP port 8080 web traffic
+resource "google_compute_firewall" "container-allow-port8080" {
+  name                    = "container-allow-port8080"
+  network                 = google_compute_network.vpc-network.name
   allow {
     protocol              = "tcp"
     ports                 = ["8080"]
@@ -62,8 +64,12 @@ resource "google_compute_firewall" "container-firewall" {
     description           = "Allow HTTP Port 8080 traffic for web servers."
     source_ranges         = ["0.0.0.0/0"]
   }
+  target_tags = ["port8080"]
+}
 
-  # Allow SSH
+resource "google_compute_firewall" "container-allow-SSH" {
+  name                    = "container-allow-SSH"
+  network                 = google_compute_network.vpc-network.name
   allow {
     protocol              = "tcp"
     ports                 = ["22"]
@@ -71,9 +77,7 @@ resource "google_compute_firewall" "container-firewall" {
     description           = "Allow SSH access from trusted IP addresses."
     source_ranges         = ["0.0.0.0/0"] #Should change to my IP only.
   }
-
-  # Source tags
-  source_tags = ["web"]
+  target_tags = ["ssh"]
 }
 
 resource "google_compute_firewall" "allow-internal" {
@@ -129,8 +133,8 @@ resource "google_compute_instance" "default" {
   } 
 
   network_interface {
-    network               = google_compute_network.vpc_network.name
-    subnetwork            = google_compute_subnetwork.public_subnet.name
+    network               = google_compute_network.vpc-network.name
+    subnetwork            = google_compute_subnetwork.public-subnet.name
     access_config {
       // Ephemeral public IP
     }
@@ -156,7 +160,6 @@ resource "google_project_iam_binding" "instance_editor_binding" {
     "serviceAccount:764950655405-compute@developer.gserviceaccount.com",
   ]
 }
-
 
 ## Below for modulization attempt
 
