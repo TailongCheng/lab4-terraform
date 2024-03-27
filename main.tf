@@ -47,11 +47,11 @@ resource "google_compute_firewall" "container-allow-icmp" {
   network                 = google_compute_network.vpc-network.name
   allow {
     protocol              = "icmp"
-    priority              = 65534
-    description           = "Allow ICMP."
-    source_ranges         = ["0.0.0.0/0"]
   }
-  target_tags = ["icmp"]
+  priority                = 65534
+  description             = "Allow ICMP."
+  source_ranges           = ["0.0.0.0/0"]
+  target_tags             = ["icmp"]
 }
 
 resource "google_compute_firewall" "container-allow-port8080" {
@@ -60,10 +60,10 @@ resource "google_compute_firewall" "container-allow-port8080" {
   allow {
     protocol              = "tcp"
     ports                 = ["8080"]
-    priority              = 110
-    description           = "Allow HTTP Port 8080 traffic for web servers."
-    source_ranges         = ["0.0.0.0/0"]
   }
+  priority              = 110
+  description           = "Allow HTTP Port 8080 traffic for web servers."
+  source_ranges         = ["0.0.0.0/0"]
   target_tags = ["port8080"]
 }
 
@@ -73,10 +73,10 @@ resource "google_compute_firewall" "container-allow-SSH" {
   allow {
     protocol              = "tcp"
     ports                 = ["22"]
-    priority              = 110
-    description           = "Allow SSH access from trusted IP addresses."
-    source_ranges         = ["0.0.0.0/0"] #Should change to my IP only.
   }
+  priority              = 110
+  description           = "Allow SSH access from trusted IP addresses."
+  source_ranges         = ["0.0.0.0/0"] #Should change to my IP only.
   target_tags = ["ssh"]
 }
 

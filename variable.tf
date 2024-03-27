@@ -1,6 +1,6 @@
 variable "gcp_project" {
         description = "GCP project for assignment 2"
-        default = "cheng-assignment2"
+        default = "assignment2-418411"
 }
 
 variable "env" {
