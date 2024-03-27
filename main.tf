@@ -92,8 +92,8 @@ resource "google_compute_firewall" "allow-internal" {
     ports    = ["0-65535"]
   }
   source_ranges = [
-    google_compute_subnetwork.public-subnet.cidr_block,
-    google_compute_subnetwork.private-subnet.cidr_block
+    google_compute_subnetwork.public-subnet.ip_cidr_range,
+    google_compute_subnetwork.private-subnet.ip_cidr_range
   ]
 }
 
