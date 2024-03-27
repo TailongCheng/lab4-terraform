@@ -51,7 +51,6 @@ resource "google_compute_firewall" "container-allow-icmp" {
   priority                = 65534
   description             = "Allow ICMP."
   source_ranges           = ["0.0.0.0/0"]
-  target_tags             = ["icmp"]
 }
 
 resource "google_compute_firewall" "container-allow-port8080" {
@@ -64,7 +63,6 @@ resource "google_compute_firewall" "container-allow-port8080" {
   priority              = 110
   description           = "Allow HTTP Port 8080 traffic for web servers."
   source_ranges         = ["0.0.0.0/0"]
-  target_tags = ["port8080"]
 }
 
 resource "google_compute_firewall" "container-allow-ssh" {
@@ -77,7 +75,6 @@ resource "google_compute_firewall" "container-allow-ssh" {
   priority              = 110
   description           = "Allow SSH access from trusted IP addresses."
   source_ranges         = ["0.0.0.0/0"] #Should change to my IP only.
-  target_tags = ["ssh"]
 }
 
 resource "google_compute_firewall" "allow-internal" {
@@ -95,8 +92,8 @@ resource "google_compute_firewall" "allow-internal" {
     ports    = ["0-65535"]
   }
   source_ranges = [
-    "public-subnet",
-    "private-subnet"
+    google_compute_subnetwork.public-subnet.cidr_block,
+    google_compute_subnetwork.private-subnet.cidr_block
   ]
 }
 
@@ -128,10 +125,9 @@ resource "google_compute_instance" "vm-container" {
     # Start and enable Docker service
     sudo systemctl start docker
     sudo systemctl enable docker
-    # Create a directory for the assignment
-    sudo mkdir /assignment2
-    cd /assignment2
-    # Pull and run the Docker image from GCR
+    # Authenticate Docker to the registry
+    sudo gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+    # Run the Docker image from GCR
     sudo docker pull us-central1-docker.pkg.dev/assignment2-418411/cheng-repo/flaskapp:latest
     sudo docker run --name flaskapp -dp 8080:8080 us-central1-docker.pkg.dev/assignment2-418411/cheng-repo/flaskapp:latest
     EOF 
