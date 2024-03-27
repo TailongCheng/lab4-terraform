@@ -67,8 +67,8 @@ resource "google_compute_firewall" "container-allow-port8080" {
   target_tags = ["port8080"]
 }
 
-resource "google_compute_firewall" "container-allow-SSH" {
-  name                    = "container-allow-SSH"
+resource "google_compute_firewall" "container-allow-ssh" {
+  name                    = "container-allow-ssh"
   network                 = google_compute_network.vpc-network.name
   allow {
     protocol              = "tcp"
@@ -114,22 +114,28 @@ resource "google_compute_instance" "default" {
   }
 
   metadata {
-    startup-script = <<SCRIPT
+    startup-script = <<-EOF
+    #!/bin/bash
     sudo apt-get update -y
     sudo apt-get install apt-transport-https ca-certificates curl gnupg lsb-release -y
+    # Add Docker's official GPG key
     curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-    echo \
-      "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian \
+    # Set up the stable Docker repository
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian \
       $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    # Install Docker Engine
     sudo apt-get update -y
     sudo apt-get install docker-ce docker-ce-cli containerd.io -y
+    # Start and enable Docker service
     sudo systemctl start docker
     sudo systemctl enable docker
+    # Create a directory for the assignment
     sudo mkdir /assignment2
     cd /assignment2
+    # Pull and run the Docker image from GCR
     sudo docker pull us-central1-docker.pkg.dev/assignment2-418411/cheng-repo/flaskapp:latest
     sudo docker run --name flaskapp -dp 8080:8080 us-central1-docker.pkg.dev/assignment2-418411/cheng-repo/flaskapp:latest
-    SCRIPT
+    EOF
   } 
 
   network_interface {
