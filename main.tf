@@ -58,7 +58,7 @@ resource "google_compute_firewall" "container-allow-port8080" {
   network                 = google_compute_network.vpc-network.name
   allow {
     protocol              = "tcp"
-    ports                 = ["8080"]
+    ports                 = ["80"]
   }
   priority              = 110
   description           = "Allow HTTP Port 8080 traffic for web servers."
@@ -110,17 +110,18 @@ resource "google_compute_instance" "vm-container" {
     }
   }
 
-  metadata = {
-    gce-container-declaration = <<EOT
-    spec:
-      containers:
-      - name: my-container
-        image: 'us-central1-docker.pkg.dev/assignment2-418411/cheng-repo/flaskapp:${COMMIT_SHA}'
-        stdin: false
-        tty: false
-      restartPolicy: Always
-    EOT
-  }
+  # Metadata is not required for the lab.
+  # metadata = {
+  #   gce-container-declaration = <<EOT
+  #   spec:
+  #     containers:
+  #     - name: my-container
+  #       image: 'us-central1-docker.pkg.dev/assignment2-418411/cheng-repo/flaskapp:${COMMIT_SHA}'
+  #       stdin: false
+  #       tty: false
+  #     restartPolicy: Always
+  #   EOT
+  # }
 
   network_interface {
     network               = google_compute_network.vpc-network.name
