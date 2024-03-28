@@ -110,7 +110,15 @@ resource "google_compute_instance" "vm-container" {
     }
   }
 
-  # Metadata is not required for the lab.
+  metadata = {
+    gce-container-declaration = <<EOT
+    spec:
+      containers:[]
+      restartPolicy: Always
+    EOT
+  }
+
+  # Start Image is not required for the lab.
   # metadata = {
   #   gce-container-declaration = <<EOT
   #   spec:
