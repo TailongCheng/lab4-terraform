@@ -110,26 +110,18 @@ resource "google_compute_instance" "vm-container" {
     }
   }
 
+  ## Start Image is not required for the lab, but there is always some error in the CI/CD process without metadata.
   metadata = {
     gce-container-declaration = <<EOT
     spec:
-      containers:[]
+      containers:
+      - name: flaskapp-container
+        image: 'us-central1-docker.pkg.dev/assignment2-418411/cheng-repo/flaskapp@sha256:320f15471e42c50f16dca3c54bc1beadc126da183e9050bd2b0fc85e8919cb53'
+        stdin: false
+        tty: false
       restartPolicy: Always
     EOT
   }
-
-  # Start Image is not required for the lab.
-  # metadata = {
-  #   gce-container-declaration = <<EOT
-  #   spec:
-  #     containers:
-  #     - name: my-container
-  #       image: 'us-central1-docker.pkg.dev/assignment2-418411/cheng-repo/flaskapp:${COMMIT_SHA}'
-  #       stdin: false
-  #       tty: false
-  #     restartPolicy: Always
-  #   EOT
-  # }
 
   network_interface {
     network               = google_compute_network.vpc-network.name
