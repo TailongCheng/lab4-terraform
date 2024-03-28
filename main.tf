@@ -54,7 +54,7 @@ resource "google_compute_firewall" "container-allow-icmp" {
 }
 
 resource "google_compute_firewall" "container-allow-port8080" {
-  name                    = "container-allow-port8080"
+  name                    = "container-allow-http"
   network                 = google_compute_network.vpc-network.name
   allow {
     protocol              = "tcp"
@@ -116,7 +116,7 @@ resource "google_compute_instance" "vm-container" {
     spec:
       containers:
       - name: flaskapp-container
-        image: 'us-central1-docker.pkg.dev/assignment2-418411/cheng-repo/flaskapp@sha256:320f15471e42c50f16dca3c54bc1beadc126da183e9050bd2b0fc85e8919cb53'
+        image: 'us-central1-docker.pkg.dev/assignment2-418411/cheng-repo/flaskapp@sha256:bee94644cf39a29d506be2779d50509573b7ad2074626fbed79907a5fa74093b'
         stdin: false
         tty: false
       restartPolicy: Always
