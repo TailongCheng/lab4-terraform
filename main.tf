@@ -106,29 +106,11 @@ resource "google_compute_instance" "vm-container" {
 
   boot_disk {
     initialize_params {
-      image               = "debian-12-bookworm-v20240312"
+      image               = "cos-101-17162-386-47"
     }
   }
 
   metadata_startup_script = <<-EOF
-    #!/bin/bash
-    sudo apt-get update -y
-    sudo apt-get install apt-transport-https ca-certificates curl gnupg lsb-release -y
-    # Add Docker's official GPG key
-    curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-    # Set up the stable Docker repository
-    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian \
-      $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-    # Install Docker Engine
-    sudo apt-get update -y
-    sudo apt-get install docker-ce docker-ce-cli containerd.io -y
-    # Start and enable Docker service
-    sudo systemctl start docker
-    sudo systemctl enable docker
-    # Authenticate Docker to the registry
-    sudo gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
-    # Run the Docker image from GCR
-    sudo docker pull us-central1-docker.pkg.dev/assignment2-418411/cheng-repo/flaskapp:latest
     sudo docker run --name flaskapp -dp 8080:8080 us-central1-docker.pkg.dev/assignment2-418411/cheng-repo/flaskapp:latest
     EOF 
 
