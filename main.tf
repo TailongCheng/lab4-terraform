@@ -106,13 +106,21 @@ resource "google_compute_instance" "vm-container" {
 
   boot_disk {
     initialize_params {
-      image               = "cos-101-17162-386-47"
+      image               = "cos-cloud/cos-stable"
     }
   }
 
-  metadata_startup_script = <<-EOF
-    sudo docker run --name flaskapp -dp 8080:8080 us-central1-docker.pkg.dev/assignment2-418411/cheng-repo/flaskapp:latest
-    EOF 
+  metadata = {
+    gce-container-declaration = <<EOT
+    spec:
+    containers:
+    - name: my-container
+      image: 'us-central1-docker.pkg.dev/assignment2-418411/cheng-repo/flaskapp:${COMMIT_SHA}'
+      stdin: false
+      tty: false
+    restartPolicy: Always
+  EOT
+  }
 
   network_interface {
     network               = google_compute_network.vpc-network.name
