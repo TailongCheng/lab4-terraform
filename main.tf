@@ -106,20 +106,20 @@ resource "google_compute_instance" "vm-container" {
 
   boot_disk {
     initialize_params {
-      image               = "cos-cloud/cos-stable"
+      image               = "cos-cloud/cos-101-17162-386-57"
     }
   }
 
   metadata = {
     gce-container-declaration = <<EOT
     spec:
-    containers:
-    - name: my-container
-      image: 'us-central1-docker.pkg.dev/assignment2-418411/cheng-repo/flaskapp:${COMMIT_SHA}'
-      stdin: false
-      tty: false
-    restartPolicy: Always
-  EOT
+      containers:
+      - name: my-container
+        image: 'us-central1-docker.pkg.dev/assignment2-418411/cheng-repo/flaskapp:${COMMIT_SHA}'
+        stdin: false
+        tty: false
+      restartPolicy: Always
+    EOT
   }
 
   network_interface {
